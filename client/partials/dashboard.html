@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <meta charset="utf-8">
+    <title>Dashboard</title>
+  </head>
+  <body>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Edit</th>
+          <th>Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="friend in friends">
+          <td ng-bind="friend.name"></td>
+          <td ng-bind="friend.age"></td>
+          <td><a href="#!/edit/{{friend._id}}">E</a></td>
+          <td><button ng-click="delete(friend)">X</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

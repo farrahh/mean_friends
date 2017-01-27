@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <meta charset="utf-8">
+    <title>Edit Page</title>
+  </head>
+  <body>
+    <h1> Edit Friend </h1>
+
+    <h1>Hello {{user}}</h1>
+  <form ng-submit="update()">
+    <input ng-model="friend.name" type="text" placeholder="">
+    <input ng-model="friend.age" type="number" placeholder="">
+    <input type="submit" value="Update">
+  </form>
+
+  </body>
+</html>

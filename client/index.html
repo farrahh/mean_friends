@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html ng-app="app">
+  <head>
+    <title>Full MEAN Demo Jan 2017</title>
+    <meta charset="UTF-8">
+    <script src="angular/angular.min.js"></script>
+    <script src="angular-route/angular-route.min.js"></script>
+    <script>
+      var app = angular.module('app', ['ngRoute']);
+      app.config(function($routeProvider) {
+          $routeProvider
+          .when('/', {
+            templateUrl: 'partials/dashboard.html',
+            controller: 'dashboardController'
+          })
+          .when('/new', {
+            templateUrl: 'partials/new.html',
+            controller: 'newController'
+          })
+          .when('/edit/:id', {
+            templateUrl: 'partials/edit.html',
+            controller: 'editController'
+          })
+        })
+      app.factory('friendsFactory', function($http) {
+        console.log('friendsFactory started')
+        var factory = {};
+        factory.index = function(callback) {
+          $http.get('/friends').then(function(res) {
+            console.log(res);
+            if (callback && typeof callback == "function") {
+              callback(res.data);
+            }
+          })
+        }
+        factory.show = function(id, callback) {
+          $http.get('/friends/'+id).then(function(res) {
+            if (callback && typeof callback == 'function') {
+              callback(res.data);
+            }
+          })
+        }
+        factory.create = function(newFriend, callback) {
+          $http.post('/friends', newFriend).then(function(res) {
+            console.log(res);
+            if (callback && typeof callback == "function") {
+              callback(res.data);
+            }
+          })
+        }
+        factory.update = function(friend, callback) {
+          console.log(friend);
+          $http.put('/friends/'+friend._id, friend).then(function(res) {
+            callback(res.data);
+          })
+        }
+        factory.delete = function(friend, callback) {
+          console.log(friend);
+          $http.delete('/friends/'+friend._id).then(function(res) {
+            callback(res.data);
+          })
+        }
+        return factory;
+      })
+      app.factory('userFactory', function() {
+        var user = '';
+        var factory = {};
+        factory.get = function(callback) {
+          callback(user);
+          return user;
+        }
+        factory.set = function(currUser) {
+          user = currUser;
+        }
+        return factory;
+      })
+      app.controller('dashboardController', ['$scope', 'friendsFactory', 'userFactory', function($scope, friendsFactory, userFactory) {
+        userFactory.get(function(user) {
+          if (!user) {
+            var user = prompt('username');
+            if (user) {
+              userFactory.set(user);
+            }
+          }
+        })
+        console.log('dashboardController started');
+        friendsFactory.index(function(data) {
+          $scope.friends = data;
+        })
+        $scope.delete = function(friend) {
+          friendsFactory.delete(friend, function(data) {
+            friendsFactory.index(function(data) {
+              $scope.friends = data;
+            })
+          })
+        }
+      }])
+      app.controller('newController', function($scope, friendsFactory, $location, userFactory) {
+        console.log('newController started');
+        $scope.user = '';
+        userFactory.get(function(user) {
+          if (!user) {
+            $location.url('/');
+          }
+          console.log(user);
+          $scope.user = user;
+        })
+        $scope.create = function() {
+          friendsFactory.create($scope.newFriend, function(data) {
+            console.log(data);
+            if (data.errors) {
+              $scope.errors = data.errors;
+            } else {
+              $location.url('/');
+            }
+          })
+        }
+      })
+      app.controller('editController', function($scope, friendsFactory, $location, $routeParams, userFactory) {
+        $scope.user = '';
+        userFactory.get(function(user) {
+          if (!user) {
+            $location.url('/');
+          }
+          console.log(user);
+          $scope.user = user;
+        })
+        console.log('editController started');
+        friendsFactory.show($routeParams.id, function(data) {
+          console.log(data);
+          $scope.friend = data;
+        })
+        $scope.update = function() {
+          friendsFactory.update($scope.friend, function(data) {
+            console.log(data);
+            $location.url('/');
+          })
+        }
+      })
+
+    </script>
+  </head>
+  <body>
+    <a href="/">Home</a>
+    <a href="#!/new">New</a>
+    <div ng-view=""></div>
+  </body>
+</html>
